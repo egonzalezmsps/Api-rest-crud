@@ -1,38 +1,35 @@
 package com.example.apirest.api_rest.controller;
 
-import com.example.apirest.api_rest.service.MotoService;
-import com.example.apirest.api_rest.model.Moto;
+
+
+import com.example.apirest.api_rest.bean.MotoResponse;
+import com.example.apirest.api_rest.model.MotoEntity;
+import com.example.apirest.api_rest.model.dto.MotoDto;
+import com.example.apirest.api_rest.service.MotoServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
-@RequestMapping("api/motos")
+@RequestMapping("api/v1/")
 public class MotoController {
+
     @Autowired
-    private MotoService motoService;
+    private MotoServiceI motoService;
 
-   @PostMapping
-    public Moto createMotos( @RequestBody Moto moto ) {
-       return motoService.createMoto(moto);
-    }
-    @GetMapping
-    public List<Moto> getAllMotos() {
-       return motoService.getAllMotos();
+    @PostMapping
+    public ResponseEntity<MotoResponse> createMoto(@RequestBody MotoEntity motoEntity) {
+        MotoResponse motoVar = motoService.createdMoto(motoEntity);
+        return ResponseEntity.ok(motoVar);
     }
 
-    @GetMapping("{id}")
-    public Moto searchById(@PathVariable("id") Long id) {
-       return motoService.getByMoto(id);
+    @GetMapping("/buscar")
+    public ResponseEntity<MotoDto> getMotoByIdAndMarca(
+            @RequestParam(required = false) Long id, // El ID es opcional
+            @RequestParam(required = false) String marca) { // La marca es obligatoria
+        MotoDto motoDto = motoService.getMotos(id, marca);
+        return ResponseEntity.ok(motoDto);
     }
-    @DeleteMapping("{id}") // Especifica el {id} en la ruta
-    public void deleteMoto(@PathVariable("id") Long id) { // Asegúrate de que el nombre coincida
-        motoService.deleteMoto(id);
-    }
-    @PutMapping("{id}")
-    public Moto updateMoto(@PathVariable("id") Long id, @RequestBody Moto moto) {
-        return motoService.updateMoto(id, moto);
-    }
-
 }

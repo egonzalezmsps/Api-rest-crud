@@ -1,47 +1,51 @@
 package com.example.apirest.api_rest.service;
 
-import com.example.apirest.api_rest.model.Moto;
+
+import com.example.apirest.api_rest.bean.MotoResponse;
+import com.example.apirest.api_rest.helper.MotoHelperI;
+import com.example.apirest.api_rest.model.MotoEntity;
+import com.example.apirest.api_rest.model.dto.MotoDto;
 import com.example.apirest.api_rest.repository.MotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
-@Component
-public class MotoService {
+
+@Service
+public class MotoService implements MotoServiceI {
+
+
    @Autowired
     private MotoRepository motoRepository;
+@Autowired
+private MotoHelperI motoHelperI;
 
-   public Moto createMoto(Moto moto) {
-       return motoRepository.save(moto);
-   }
+    @Override
+    public MotoResponse createdMoto(MotoEntity motoEntity) {
+     motoRepository.save(motoEntity);
+     return new MotoResponse(motoEntity.getId(), "Successfully created");
+    }
 
-   public Moto getByMoto(Long id) {
-       Optional<Moto> optionalMoto = motoRepository.findById(id);
-        return optionalMoto.get();
-   }
+    public MotoDto getMotos(Long id, String marca) {
 
-   public List<Moto> getAllMotos() {
-       return motoRepository.findAll();
-   }
-
-   public void deleteMoto(Long id) {
-       motoRepository.deleteById(id);
-   }
-    public Moto updateMoto(Long id, Moto moto) {
-
-        Optional<Moto> optionalMoto = motoRepository.findById(id);
-        if (optionalMoto.isPresent()) {
-            Moto existingMoto = optionalMoto.get();
-            existingMoto.setMarca(moto.getMarca());
-            existingMoto.setModelo(moto.getModelo());
-            existingMoto.setColor(moto.getColor());
-            existingMoto.setCilindrada(moto.getCilindrada());
-            return motoRepository.save(existingMoto);
+        Optional<MotoEntity> motoEntity = motoRepository.findByIdAndMarcaIgnoreCase(id, marca);
+        if (motoEntity.isPresent()) {
+            return motoHelperI.toDto(motoEntity.get());
         } else {
-            throw new RuntimeException("Moto no encontrada con ID: " + id);
+            throw new RuntimeException("Moto no encontrada con id: " + id + " y marca: " + marca);
         }
     }
 
+
+
+    @Override
+    public MotoResponse updateMoto(Long id) {
+        return null;
+    }
+
+    @Override
+    public MotoResponse deleteMoto(Long id) {
+        return null;
+    }
 }
